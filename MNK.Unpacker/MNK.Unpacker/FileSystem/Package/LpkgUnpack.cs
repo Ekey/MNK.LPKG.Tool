@@ -26,14 +26,14 @@ namespace MNK.Unpacker
                 var lpSrcTable = TLpkgStream.ReadBytes((Int32)TLpkgStream.Length - 8);
                 var lpDstTable = Zlib.iDecompress(lpSrcTable);
 
-                using (var TMemoryReader = new MemoryStream(lpDstTable))
+                using (var TTableReader = new MemoryStream(lpDstTable))
                 {
                     var m_TableHeader = new LpkgTableHeader();
 
-                    m_TableHeader.dwMagic = TMemoryReader.ReadUInt32();
-                    m_TableHeader.dwUnknown1 = TMemoryReader.ReadInt32();
-                    m_TableHeader.dwTotalFiles = TMemoryReader.ReadInt32();
-                    m_TableHeader.dwTotalLpkgs = TMemoryReader.ReadInt32();
+                    m_TableHeader.dwMagic = TTableReader.ReadUInt32();
+                    m_TableHeader.dwUnknown1 = TTableReader.ReadInt32();
+                    m_TableHeader.dwTotalFiles = TTableReader.ReadInt32();
+                    m_TableHeader.dwTotalLpkgs = TTableReader.ReadInt32();
 
                     if (m_TableHeader.dwMagic != 0x4341434C)
                     {
@@ -48,10 +48,10 @@ namespace MNK.Unpacker
                     m_EntryTable.Clear();
                     for (Int32 i = 0; i < m_TableHeader.dwTotalFiles; i++)
                     {
-                        UInt32 dwNameHash = TMemoryReader.ReadUInt32();
-                        Int32 dwPackageID = TMemoryReader.ReadInt32();
-                        Int64 dwOffset = TMemoryReader.ReadInt64();
-                        Int64 dwSize = TMemoryReader.ReadInt64();
+                        UInt32 dwNameHash = TTableReader.ReadUInt32();
+                        Int32 dwPackageID = TTableReader.ReadInt32();
+                        Int64 dwOffset = TTableReader.ReadInt64();
+                        Int64 dwSize = TTableReader.ReadInt64();
 
                         var TEntry = new LpkgEntry
                         {
@@ -64,7 +64,7 @@ namespace MNK.Unpacker
                         m_EntryTable.Add(TEntry);
                     }
 
-                    TMemoryReader.Dispose();
+                    TTableReader.Dispose();
                 }
 
                 TLpkgStream.Dispose();
